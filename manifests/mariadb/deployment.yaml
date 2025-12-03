@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mariadb
+  namespace: seafile
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mariadb
+  template:
+    metadata:
+      labels:
+        app: mariadb
+    spec:
+      nodeSelector:
+        kubernetes.io/hostname: k8s-node1
+      containers:
+      - name: mariadb
+        image: mariadb:10.11
+        ports:
+        - containerPort: 3306
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: seafile-secrets
+              key: mysql-root-password
+        - name: MYSQL_LOG_CONSOLE
+          value: "true"
+        volumeMounts:
+        - name: mariadb-storage
+          mountPath: /var/lib/mysql
+      volumes:
+      - name: mariadb-storage
+        persistentVolumeClaim:
+          claimName: mariadb-pvc
