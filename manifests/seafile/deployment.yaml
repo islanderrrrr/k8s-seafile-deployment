@@ -24,11 +24,20 @@ spec:
         - name: DB_HOST
           value: "mariadb"
         - name: DB_ROOT_PASSWD
-          value: "db_root_password"
+          valueFrom:
+            secretKeyRef:
+              name: seafile-secrets
+              key: mysql-root-password
         - name: SEAFILE_ADMIN_EMAIL
-          value: "admin@seafile.local"
+          valueFrom:
+            secretKeyRef:
+              name: seafile-secrets
+              key: seafile-admin-email
         - name: SEAFILE_ADMIN_PASSWORD
-          value: "admin_password"
+          valueFrom:
+            secretKeyRef:
+              name: seafile-secrets
+              key: seafile-admin-password
         - name: SEAFILE_SERVER_HOSTNAME
           value: "172.22.175.252"
         - name: TIME_ZONE
