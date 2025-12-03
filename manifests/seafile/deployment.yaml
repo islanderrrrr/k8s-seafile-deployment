@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: seafile
+  namespace: seafile
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: seafile
+  template:
+    metadata:
+      labels:
+        app: seafile
+    spec:
+      nodeSelector:
+        kubernetes.io/hostname: k8s-node2
+      containers:
+      - name: seafile
+        image: seafileltd/seafile-mc:11.0-latest
+        ports:
+        - containerPort: 80
+        env:
+        - name: DB_HOST
+          value: "mariadb"
+        - name: DB_ROOT_PASSWD
+          valueFrom:
+            secretKeyRef:
+              name: seafile-secrets
+              key: mysql-root-password
+        - name: SEAFILE_ADMIN_EMAIL
+          valueFrom:
+            secretKeyRef:
+              name: seafile-secrets
+              key: seafile-admin-email
+        - name: SEAFILE_ADMIN_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: seafile-secrets
+              key: seafile-admin-password
+        - name: SEAFILE_SERVER_HOSTNAME
+          value: "172.22.175.252"
+        - name: TIME_ZONE
+          value: "Asia/Shanghai"
+        volumeMounts:
+        - name: seafile-storage
+          mountPath: /shared
+      volumes:
+      - name: seafile-storage
+        persistentVolumeClaim:
+          claimName: seafile-pvc
